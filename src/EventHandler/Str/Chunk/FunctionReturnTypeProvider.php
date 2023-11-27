@@ -27,30 +27,81 @@ final class FunctionReturnTypeProvider implements FunctionReturnTypeProviderInte
         $argument_type = Argument::getType($event->getCallArgs(), $event->getStatementsSource(), 0);
         if (null === $argument_type) {
             // [unknown] -> list<string>
-            return new Type\Union([new Type\Atomic\TList(new Type\Union([new Type\Atomic\TString()]))]);
+            $value = new Type\Union([new Type\Atomic\TString()], ['possibly_undefined' => true]);
+            return new Type\Union([new Type\Atomic\TKeyedArray(
+                [
+                    0 => $value
+                ],
+                null,
+                [
+                    Type::getListKey(),
+                    $value
+                ],
+                true
+            )]);
         }
 
         $string_argument_type = $argument_type->getAtomicTypes()['string'] ?? null;
         if (null === $string_argument_type) {
             // [unknown] -> list<string>
-            return new Type\Union([new Type\Atomic\TList(new Type\Union([new Type\Atomic\TString()]))]);
+            $value = new Type\Union([new Type\Atomic\TString()], ['possibly_undefined' => true]);
+            return new Type\Union([new Type\Atomic\TKeyedArray(
+                [
+                    0 => $value
+                ],
+                null,
+                [
+                    Type::getListKey(),
+                    $value
+                ],
+                true
+            )]);
         }
 
         if ($string_argument_type instanceof Type\Atomic\TNonEmptyString) {
             // non-empty-lowercase-string => non-empty-list<non-empty-lowercase-string>
             if ($string_argument_type instanceof Type\Atomic\TNonEmptyLowercaseString) {
-                return new Type\Union([
-                    new Type\Atomic\TNonEmptyList(new Type\Union([
-                        new Type\Atomic\TNonEmptyLowercaseString()
-                    ]))
-                ]);
+                $value = new Type\Union([new Type\Atomic\TNonEmptyLowercaseString()]);
+                return new Type\Union([new Type\Atomic\TKeyedArray(
+                    [
+                        0 => $value
+                    ],
+                    null,
+                    [
+                        Type::getListKey(),
+                        $value
+                    ],
+                    true
+                )]);
             }
 
             // non-empty-string => non-empty-list<non-empty-string>
-            return new Type\Union([new Type\Atomic\TNonEmptyList(new Type\Union([new Type\Atomic\TNonEmptyString()]))]);
+            $value = new Type\Union([new Type\Atomic\TNonEmptyString()]);
+            return new Type\Union([new Type\Atomic\TKeyedArray(
+                [
+                    0 => $value
+                ],
+                null,
+                [
+                    Type::getListKey(),
+                    $value
+                ],
+                true
+            )]);
         }
 
         // string -> list<string>
-        return new Type\Union([new Type\Atomic\TList(new Type\Union([new Type\Atomic\TString()]))]);
+        $value = new Type\Union([new Type\Atomic\TString()], ['possibly_undefined' => true]);
+        return new Type\Union([new Type\Atomic\TKeyedArray(
+            [
+                0 => $value
+            ],
+            null,
+            [
+                Type::getListKey(),
+                $value
+            ],
+            true
+        )]);
     }
 }
